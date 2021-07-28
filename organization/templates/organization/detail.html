@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Organization detail{% endblock %}
+{% block body %}
+    <p class="display-4 text-center bg-primary">Details of {{ object.organization_name }} organization</p>
+    <div class="container">
+        <div class="btn-group btn-group-lg mb-2">
+            <div><a href="{% url 'organization:list' %}" class="btn btn-primary">Back</a></div>
+            <div><a href="#" class="btn btn-warning">Invoice issuance</a></div>
+            <div><a href="{% url 'organization:edit' object.pk %}" class="btn btn-success">Edit</a></div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <label for="province">Province: </label>
+                <input type="text" id="province" disabled value="{{ object.province }}">
+            </div>
+            <div class="col-4">
+                <label for="phone">Organization phone: </label>
+                <input type="text" id="phone" disabled value="{{ object.organization_phone }}">
+            </div>
+            <div class="col-4">
+                <label for="date">Registration Date: </label>
+                <input type="text" id="date" disabled value="{{ object.format_time }}">
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-4">
+                <label for="workers">Workers: </label>
+                <input type="text" id="workers" disabled value="{{ object.workers }}">
+            </div>
+            <div class="col-4">
+                <label for="registrar">Registrar: </label>
+                <input type="text" id="registrar" disabled value="{{ object.registrant_user }}">
+            </div>
+        </div>
+        <div class="row mt-4">
+            <label>Products:
+                <input type="text" disabled value="{{ all_products|join:', ' }}">
+            </label>
+        </div>
+        <div class="row mt-4">
+            <label>Recommended Products:
+                <input type="text" disabled value="{{ recommended|join:', ' }}">
+            </label>
+        </div>
+        <div class="row mt-4">
+            <div class="col-6">
+                <label>contact fullname:
+                    <input type="text" disabled value="{{ object.contact_fullname }}">
+                </label>
+            </div>
+            <div class="col-6">
+                <label>contact mobile phone:
+                    <input type="tel" disabled value="{{ object.contact_mobile }}">
+                </label>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

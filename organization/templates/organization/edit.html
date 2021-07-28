@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Edit {{ object.organization_name }} organization{% endblock %}
+{% block body %}
+        <h3 class="text-center display-3">Edit form 📝</h3>
+        <form method="post" class="container was-validated">
+            {% csrf_token %}
+            <div class="form-row justify-content-center d-flex">
+                <div class="form-group col-4 m-4">
+                    {% with field=form.organization_name %}
+                        <label>Organization name:
+                            <input type="text" value="{{ field.initial }}" name="{{ field.name }}">
+                        </label>
+                    {% endwith %}
+                </div>
+                <div class="form-group col-4 m-4">
+                    {% with field=form.organization_phone %}
+                        <label>Organization phone:
+                            <input type="text" value="{{ field.initial }}" name="{{ field.name }}" required
+                                   pattern="^09[0-9]+$">
+                            <div class="valid-feedback">Valid email</div>
+                            <div class="invalid-feedback">invalid feedback</div>
+                        </label>
+                    {% endwith %}
+                </div>
+                <div class="form-row col-4 m-4">
+                    {% with field=form.province %}
+                        <label>Province:
+                            <input type="text" value="{{ field.initial }}" name="{{ field.name }}">
+                        </label>
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="form-row mt-3 justify-content-center d-flex">
+                <div class="form-group col-6 m-4">
+                    <label>workers :
+                        <input type="number" value="{{ form.workers.initial }}" name="{{ form.workers.name }}">
+                    </label>
+                </div>
+                <div class="form-group col-6 m-4">
+                    {% with field=form.email %}
+                        <label>Email :
+                            <input type="email" value="{{ field.initial }}" name="{{ field.name }}">
+                            <div class="valid-feedback">Valid email</div>
+                            <div class="invalid-feedback">invalid feedback</div>
+                        </label>
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="form-row mt-3 justify-content-center d-flex">
+                <div class="form-group col-4 m-4">
+                    {% with field=form.contact_fullname %}
+                        <label>
+                            Contact fullname:
+                            <input type="text" value="{{ field.initial }}" name="{{ field.name }}">
+                        </label>
+                    {% endwith %}
+                </div>
+                <div class="form-group col-5 m-4">
+                    {% with field=form.contact_mobile %}
+                        <label>
+                            Contact mobile phone:
+                            <input type="number" pattern="^09[0-9]{9}$"
+                                   value="{{ field.initial }}" name="{{ field.name }}">
+                        </label>
+                    {% endwith %}
+                </div>
+                <div class="form-group col-3 m-4">
+                    {% with field=form.status %}
+                        <label>
+                            Status:
+                            <input type="text" value="{{ field.initial }}" name="{{ field.name }}">
+                        </label>
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="form-row justify-content-center d-flex">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </form>
+
+{% endblock %}
