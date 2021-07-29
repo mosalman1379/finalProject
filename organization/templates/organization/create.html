@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Create new organization 🏢{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="row bg-info">
+            <h1 class="display-4 text-center">Register new organization</h1>
+        </div>
+        <div class="container mt-3">
+            <form method="post">
+                <div class="row">
+                    <div class="col-6">
+                        {{ form.province|add_class:'form-control'|attr:'placeholder:Province' }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        {{ form.organization_name|add_class:'form-control'|attr:'placeholder:Organization name' }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        {{ form.organization_phone|add_class:'form-control'|attr:'placeholder:Phone' }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        {{ form.workers|add_class:'form-control'|attr:'placeholder:workers' }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        {{ form.production_crop }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        {{ form.contact_fullname|add_class:'form-control'|attr:'placeholder:contact fullname' }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        {{ form.contact_mobile|add_class:'form-control'|attr:'placeholder:contact mobile phone' }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.email|add_class:'form-control'|attr:'placeholder:contact email' }}
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                    <label for="date">Date of Registration</label>
+                        <input id="date" value="{{ date }}" class="form-control" disabled>
+                    </div>
+                    <div class="col-6">
+                    <label for="registrant_contact">Registrant Contact</label>
+                        <input id="registrant_contact" value="{{ registrant_contact }}" class="form-control" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <button class="btn btn-primary col-12" type="submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

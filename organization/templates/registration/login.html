@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Log in 🔑{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{% endblock %}
+{% block body %}
+    <div class="Container">
+        <div class="card">
+            <div class="inner-box">
+                <div class="card-front">
+                    <h2>LOGIN</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.username|add_class:'input-box'|attr:'placeholder:Enter Username' }}
+                        {{ form.password|add_class:'input-box'|attr:'placeholder:Enter Password' }}
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success rounded">Submit</button>
+                        </div>
+                    </form>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tag }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                <div class="card-back"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
