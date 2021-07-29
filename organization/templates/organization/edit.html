@@ -68,7 +68,11 @@
                     {% with field=form.status %}
                         <label>
                             Status:
-                            <input type="text" value="{{ field.initial }}" name="{{ field.name }}">
+                            <select name="{{ field.name }}">
+                                {% for item in field.subwidgets %}
+                                    <option value="{{ item.name }}">{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
                         </label>
                     {% endwith %}
                 </div>
