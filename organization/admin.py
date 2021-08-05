@@ -5,6 +5,6 @@ from organization.models import Organization
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('province', 'registrant_user', 'contact_fullname', 'status')
-    exclude = ('status','registrant_user','created_date')
+    exclude = ('status','registrant_user','created_date','Followup')
     list_filter = ('province','production_crop','status')
     list_per_page = 3

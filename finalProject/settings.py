@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
+
+env=environ.Env()
+environ.Env().read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,8 +42,7 @@ INSTALLED_APPS = [
     'organization.apps.OrganizationConfig',
     'products.apps.ProductsConfig',
     'sale.apps.SaleConfig',
-    'widget_tweaks',
-    'account.apps.AccountConfig'
+    'widget_tweaks'
 ]
 
 LOGIN_URL = 'login'
@@ -80,10 +83,16 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'maktab_crm',
+        'USER': 'maktab_user',
+        'PASSWORD': '123456',
+        'HOST': 'localhost',
+        'PORT': '5430'
     }
 }
+
+CELERY_BROKER_URL = 'amqp://localhost'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -126,9 +135,23 @@ FILE_UPLOAD_HANDLERS = [
 
 STATIC_URL = '/static/'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST=env('EMAIL_HOST')
+
+EMAIL_USE_TLS=True
+
+EMAIL_PORT=587
+
+EMAIL_HOST_USER=env('EMAIL_HOST_USER')
+
+EMAIL_HOST_PASSWORD=env('EMAIL_HOST_PASSWORD')
+
+DEFAULT_FROM_EMAIL='default from email'

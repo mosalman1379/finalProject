@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Create Quote{% endblock %}
+{% block body %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="container">
+            <h3 class="display-4 bg-warning text-center">Create new Quote</h3>
+            <input type="hidden" data-organ="" name="row">
+            <div class="row mt-4 col-6">
+                <label for="id_organ">Organization name:</label>
+                <select name="organ" id="id_organ">
+                    {% for organization in organizations %}
+                        <option value="{{ organization.0 }}">{{ organization.2 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row mt-4">
+                <p class="text-center display-3">Required devices</p>
+            </div>
+            <div class="row mt-4">
+                <table class="table table-dark bg-dark">
+                    <thead>
+                    <tr>
+                        <th>Discount</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Device</th>
+                    </tr>
+                    </thead>
+                    <tbody >
+                    <tr id="row">
+                        <td>{{ form.discount|attr:'placeholder:discount'|attr:'disabled' }}</td>
+                        <td>{{ form.price|attr:'placeholder:price'|attr:'disabled' }}</td>
+                        <td>{{ form.quantity|attr:'placeholder:quantity'|attr:'disabled' }}</td>
+                        <td>
+                            <label>Devices
+                                <select name="device" class="Device">
+                                    {% for product in products %}
+                                        <option value="{{ product.0 }}" class="Option"
+                                                data-price="{{ product.2 }}">{{ product.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button id='save' class="btn btn-primary text-center" type="submit">Save</button>
+            </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger mt-2 text-center">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        </div>
+    </form>
+
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            $('.Option').on('click', function () {
+                const price = $(this)[0].dataset.price;
+                const specific_row = $(this).parent().parent().parent().parent();
+                specific_row[0].children[0].children[0].removeAttribute('disabled');
+                specific_row[0].children[0].children[0].value = 0;
+                specific_row[0].children[1].children[0].removeAttribute('disabled');
+                specific_row[0].children[1].children[0].value = price;
+                specific_row[0].children[2].children[0].removeAttribute('disabled');
+                specific_row[0].children[2].children[0].value = 1;
+            });
+        });
+        $('#save').click(function () {
+            const specific_row=$('#row');
+            const discount=$(specific_row)[0].children[0].children[0].value;
+            const price=$(specific_row)[0].children[1].children[0].value;
+            const quantity=$(specific_row)[0].children[2].children[0].value;
+            const productPk=$('.Device option:selected')[0].value;
+            const organPk=$('#id_organ option:selected')[0].value;
+
+            $.ajax({
+                url: '{% url "sale:create" %}',
+                data:{
+                    discount: discount,
+                    price: price,
+                    quantity: quantity,
+                    productPk: productPk,
+                    organPk: organPk
+                },
+                method:'POST',
+                success:function (){
+
+                },
+                error:function (){
+
+                }
+            });
+        });
+    </script>
+{% endblock %}

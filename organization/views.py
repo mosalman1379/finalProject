@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
-
+from sale.models import FollowUp
 from products.models import Manufacture_Product
 from organization.models import Organization
 from organization.forms import OrganizationForm
@@ -61,8 +61,9 @@ class OrganizationDetail(LoginRequiredMixin, DetailView):
         # all products
         kwargs['all_products'] = list(
             map((lambda x: x[1]), list(Manufacture_Product.objects.values_list())))
-        Manufacture_Product.objects.filter()
+        # Manufacture_Product.objects.filter()
         # all products except own organizations
+        kwargs['reports']=list(FollowUp.objects.all().values_list())[-3:]
         kwargs['recommended'] = list(
             map((lambda x: x[1]), list(Manufacture_Product.objects.exclude(pk=kwargs['object'].id).values_list())))
         return super(OrganizationDetail, self).get_context_data(**kwargs)

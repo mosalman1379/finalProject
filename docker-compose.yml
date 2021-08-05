@@ -1,0 +1,26 @@
+version: '3'
+volumes:
+  SiteDbData:
+services:
+  database:
+    image: 'postgres:9-alpine'
+    ports:
+      - 5430:5432
+    environment:
+      POSTGRES_USER: maktab_user
+      POSTGRES_PASSWORD: 123456
+      PGPASSWORD: 123456
+      POSTGRES_DB: maktab_crm
+      PGDATA: /db_data
+    volumes:
+      - SiteDbData:/db_data
+  broker:
+    image: 'rabbitmq:3-alpine'
+    hostname: 'maktab_broker'
+    ports:
+      - 5672:5672
+  mailhog:
+    image: 'mailhog/mailhog'
+    ports:
+      - 1025:1025
+      - 8025:8025

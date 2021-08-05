@@ -20,5 +20,6 @@ urlpatterns = [
         path('admin/', admin.site.urls),
         path('organization/', include('organization.urls')),
         path('products/', include('products.urls')),
-        path('', auth_view.LoginView.as_view(), name='login')
+        path('', auth_view.LoginView.as_view(), name='login'),
+        path('sale/',include('sale.urls'))
 ]

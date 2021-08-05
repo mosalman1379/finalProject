@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Quote List{% endblock %}
+{% block body %}
+    <div class="container">
+        <h2 class="display-3 text-center">Quote List</h2>
+        <table class="table table-stripped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Customer name</th>
+                <th>Devices</th>
+                <th>Output PDF</th>
+                <th>Operation (email)📧</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ object.organization.contact_fullname }}</td>
+                    <td>{% for obj in object.devices %}{{ obj|join:', ' }}{% endfor %}</td>
+                    <td><a href="{% url 'sale:print' object.pk %}">Download pdf</a></td>
+                    <td><a href="{% url 'sale:email' object.organization.pk  %}">Email 📨</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% include 'organization/pagination.html' %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success text-center">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

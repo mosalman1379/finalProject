@@ -1,0 +1,9 @@
+#Report{
+    border: 2px solid black;
+}
+.report{
+    background-color: antiquewhite;
+    width: 100%;
+    height: 250px;
+    border: 2px solid chartreuse;
+}
