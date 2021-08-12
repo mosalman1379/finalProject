@@ -1,6 +1,19 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block title %}Create new organization 🏢{% endblock %}
+{% block style %}
+    <style>
+        a{
+            width: 60px;
+            height: 60px;
+            background: aqua;
+            border-radius: 5px;
+            padding: 5px;
+            text-decoration: none;
+            margin: 10px;
+        }
+    </style>
+{% endblock %}
 {% block body %}
     <div class="container">
         <div class="row bg-info">
@@ -30,7 +43,7 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-6">
-                        {{ form.production_crop }}
+                        {{ form.production_crop }}<a href="{% url 'admin:products_manufacture_product_add' %}">+</a>
                     </div>
                 </div>
                 <div class="row mt-3">

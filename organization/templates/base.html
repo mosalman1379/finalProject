@@ -9,9 +9,42 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script rel="script" src="{% static 'js/jQuery.js' %}"></script>
+    <style>
+        body {
+            background-color: beige;
+        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        li {
+            float: left;
+        }
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        li a:hover:not(.active) {
+            background-color: #111;
+        }
+    </style>
     {% block style %}{% endblock %}
 </head>
 <body>
+<ul id="nav">
+    <li><a href="{% url 'login' %}">Log in</a></li>
+    <li><a href="{% url 'organization:list' %}">Organization</a></li>
+    <li><a href="{% url 'admin:products_product_changelist' %}">Product</a></li>
+    <li><a href="{% url 'sale:list' %}">Sale</a></li>
+</ul>
 {% block body %}{% endblock %}
 {% block script %}{% endblock %}
 </body>

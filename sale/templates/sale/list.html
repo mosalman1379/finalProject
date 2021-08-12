@@ -2,7 +2,10 @@
 {% block title %}Quote List{% endblock %}
 {% block body %}
     <div class="container">
-        <h2 class="display-3 text-center">Quote List</h2>
+        <div class="row mb-2">
+            <h2 class="display-3 text-center">Quote List</h2>
+        </div>
+        <a href="{% url 'sale:create' %}" class="col-3 btn btn-primary align-right">Create quote</a>
         <table class="table table-stripped">
             <thead>
             <tr>
@@ -18,14 +21,16 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ object.organization.contact_fullname }}</td>
-                    <td>{% for obj in object.devices %}{{ obj|join:', ' }}{% endfor %}</td>
+                    <td>{% for item in object.quoteitem_set.all %}{{ item.device|join:', ' }}{% endfor %}</td>
                     <td><a href="{% url 'sale:print' object.pk %}">Download pdf</a></td>
-                    <td><a href="{% url 'sale:email' object.organization.pk  %}">Email 📨</a></td>
+                    <td><a href="{% url 'sale:email' object.pk %}">Email 📨</a></td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        {% include 'organization/pagination.html' %}
+        <div class="justify-content-center d-flex">
+            {% include 'organization/pagination.html' %}
+        </div>
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-success text-center">{{ message }}</div>

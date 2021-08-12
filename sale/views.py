@@ -1,8 +1,14 @@
 import datetime
+import json
+from smtplib import SMTPException
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponse
+from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
+
+from my_signal import email_signal
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import FormView, ListView, DetailView
 from sale.models import Quote, FollowUp, QuoteItem
@@ -16,38 +22,39 @@ from sale.celery_tasks import send_mail_to
 class CreateQuote(LoginRequiredMixin, FormView):
     form_class = QuoteItemForm
     template_name = 'sale/create.html'
-
+    """
+    Create Quote class based view 
+    """
     def get_context_data(self, **kwargs):
         kwargs['products'] = Product.objects.all().values_list()
         kwargs['organizations'] = Organization.objects.all().values_list()
         return super(CreateQuote, self).get_context_data(**kwargs)
 
     def post(self, request, *args, **kwargs):
-        price = int(request.POST.get('price', None))
-        discount = float(request.POST.get('discount', None))
-        quantity = int(request.POST.get('quantity', None))
-        organ = int(request.POST.get('organ', None))
-        device = int(request.POST.get('device', None))
-        u = Quote(organization_id=organ)
-        u.save()
-        x = QuoteItem(price=price, discount=discount, quantity=quantity,device_id=device,quote_id=u.pk)
-        x.save()
-        return redirect('sale:list')
-
-    def form_invalid(self, form):
-        messages.error(request=self.request, message='Your inputs are incorrect')
-        return super(CreateQuote, self).form_invalid(form)
+        content = request.POST.get('contents', None)
+        data = json.loads(content)
+        quote = Quote.objects.create(organization_id=int(data[0]['organizationId']), quote_date=datetime.datetime.now())
+        for item in data:
+            QuoteItem.objects.create(device_id=int(item['deviceId']), quantity=int(item['quantity']),
+                                     price=int(item['price']), discount=float(item['discount']) / 100.0,
+                                     quote_id=quote.pk)
+        return JsonResponse(data={'message': 'Quote saved successfully'}, status=200)
 
 
 class QuoteList(LoginRequiredMixin, ListView):
     paginate_by = 3
     template_name = 'sale/list.html'
     model = Quote
+    """
+    list quote items class based view 
+    """
 
 
 class PrintOrder(LoginRequiredMixin, DetailView):
     model = Quote
-
+    """
+    get pdf output file of quote
+    """
     def get(self, request, *args, **kwargs):
         g = super(PrintOrder, self).get(request, *args, **kwargs)
         rendered_content = g.rendered_content
@@ -56,27 +63,43 @@ class PrintOrder(LoginRequiredMixin, DetailView):
         return response
 
 
-def report_detail(request, pk):
-    report = get_object_or_404(klass=FollowUp, pk=pk)
-    return render(request, 'sale/detail_report.html', context={'report': report})
+# describe each report
+class Report_detail(LoginRequiredMixin,DetailView):
+    template_name = 'sale/detail_report.html'
 
+    def get_object(self, queryset=None):
+        return FollowUp.objects.get(pk=self.kwargs['pk'])
 
+    def get_context_data(self, **kwargs):
+        kwargs['report']=self.get_object()
+        return super(Report_detail, self).get_context_data(**kwargs)
+
+@require_POST
 def save_report(request):
-    report = request.GET.get('report', None)
-    user_pk = request.GET.get('user_pk', None)
+    """
+    save report on organization page
+    """
+    report = request.POST.get('report', None)
+    user_pk = int(request.POST.get('user_pk', None))
     user = User.objects.get(pk=user_pk)
     form_instance = ReportForm({'user': user, 'date': datetime.datetime.now(), 'report': report})
     if form_instance.is_valid():
         form_instance.save()
-        return JsonResponse(data={'status': 'ok', 'message': 'report save successfully'}, status=200)
+        return JsonResponse(data={'status': 'ok', 'message': 'Report saved successfully'}, status=200)
     else:
-        return JsonResponse(data={'status': 'error', 'message': 'invalid data'}, status=400)
+        return JsonResponse(data={'status': 'error', 'message': "Report doesn't saved successfully"}, status=400)
 
 
-def email_order(request, pk):
-    organ=Organization.objects.get(pk=pk)
-    organization_email = organ.email
-    quotes=Quote.objects.all().values_list()
-    send_mail_to('celery', 'celery_message', organization_email,quotes)
-    messages.info(request,'email sent!')
-    return redirect('sale:list',)
+# sending email by class based view
+class Email_send(LoginRequiredMixin, DetailView):
+    def get(self, request, *args, **kwargs):
+        quote = Quote.objects.get(pk=kwargs['pk'])
+        organization_email = quote.organization.email
+        quotes = quote.quoteitem_set.all()
+        try:
+            send_mail_to('CRM Email', 'sale/email.html', organization_email, quotes)
+            email_signal.send(sender=Quote, instance=quote, success=True)
+            messages.info(request, 'email sent!')
+        except SMTPException:
+            email_signal.send(sender=Quote, instance=quote, success=False)
+        return redirect('sale:list')

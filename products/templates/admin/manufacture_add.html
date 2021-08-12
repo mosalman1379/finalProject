@@ -7,10 +7,18 @@
 {% block field_sets %}{% endblock %}
 {% block submit_buttons_bottom %}
     <div class="row">
-        <div class="col-8">
-            {{ adminform.form }}
+        <div class="col-6">Product name:
+            {{ adminform.form.name }}
         </div>
         <div class="col-4">
+            <label for="id_tags">Tags</label>
+            <select name="tags" id="id_tags" multiple>
+                {% for tag in tags %}
+                    <option value="{{ tag.1 }}">{{ tag.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-2">
             <button class="btn btn-primary">Save</button>
         </div>
     </div>

@@ -1,14 +1,28 @@
+import os
+
+import weasyprint
 from celery import shared_task
-from django.conf.global_settings import EMAIL_HOST_USER
-from django.core.mail import send_mail
+from django.conf import settings
+from django.core.mail import  EmailMessage
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from io import BytesIO
 
 
 @shared_task
 def send_mail_to(subject, Htmlpath, receivers,context):
+    """
+    celery task for sending email
+    :param subject: subject of our email
+    :param Htmlpath: the html path of whole email
+    :param receivers: list of our receiver email
+    :param context: context of own email
+    :return: nothing
+    """
+    email=EmailMessage(subject=subject,body='Please, find attached the invoice for your recent',
+                       from_email=settings.EMAIL_HOST_USER,to=[receivers])
     html_message=render_to_string(Htmlpath,{'context':context})
-    plain_message=strip_tags(html_message)
-    send_mail(subject, plain_message, EMAIL_HOST_USER, [receivers],
-              fail_silently=False)
-
+    out=BytesIO()
+    stylesheets=[weasyprint.CSS(os.path.join(settings.STATIC_ROOT,'sale/static/css/pdf.css'))]
+    weasyprint.HTML(string=html_message).write_pdf(out,stylesheets=stylesheets)
+    email.attach(filename='Quote.pdf',content=out.getvalue(),mimetype='application/pdf')
+    email.send()

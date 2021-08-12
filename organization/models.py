@@ -11,7 +11,6 @@ mobile_phone_regex = RegexValidator(regex='^09[0-9]{9}$', message='invalid mobil
 
 
 # organization model
-
 class Organization(models.Model):
     province = models.CharField(verbose_name=_('province'), max_length=20)
     organization_name = models.CharField(max_length=50, verbose_name=_('organization name'))
@@ -30,6 +29,7 @@ class Organization(models.Model):
 
     # format time in created_date field
     def format_time(self):
+
         return self.created_date.strftime(format('%Y-%m-%d'))
 
     def __str__(self):

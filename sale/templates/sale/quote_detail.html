@@ -1,34 +1,74 @@
-{% extends 'base.html' %}
-{% block title %}Quote{% endblock %}
-{% block body %}
-    <div class="container-fluid">
-        <h1 class="text-center display-3">Quote list</h1>
-        <div class="row m-3">
-            <p>Organization {{ quote.organization.organization_name }} Quote</p>
-        </div>
-        {% if quote.quoteitem_set.all %}
-        <table class="table table-stripped">
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Quote List {{ quote.organization.organization_name }}</title>
+        <style>
+            .price{
+                width: 50%;
+                background-color: bisque;
+                float: left;
+                text-align: center;
+            }
+            .count{
+                width: 50%;
+                background-color: aliceblue;
+                float: left;
+                text-align: center;
+            }
+            body{
+                padding: 20px;
+            }
+            table,th,td{
+               border-collapse: collapse;
+               border: 2px solid black;
+               text-align: center;
+            }
+            thead{
+                background-color: aqua;
+            }
+            #quote tr:nth-child(even){
+                background-color: aliceblue;
+            }
+            #quote tr:nth-child(odd){
+                background-color: #978686;
+            }
+            h2{
+                font-size: xx-large;
+                color: red;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Quote List {{ quote.organization.organization_name }} company</h2>
+        <table style="width: 100%">
             <thead>
-            <tr>
-                <th>Device</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for item in quote.quoteitem_set.all  %}
-                <tr>
-                <td>{{ item.device }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ item.output_price }}</td>
+                <tr style="border-collapse: collapse" >
+                <th style="border: 2px solid black;border-collapse: collapse">#</th>
+                <th style="border: 2px solid black;border-collapse: collapse">Device</th>
+                <th style="border: 2px solid black;border-collapse: collapse">quantity</th>
+                <th style="border: 2px solid black;border-collapse: collapse">Price</th>
                 </tr>
-            {% endfor %}
+            </thead>
+            <tbody id="quote">
+                {% for item in quote.quoteitem_set.all %}
+                    <tr class="head_site">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.device }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.price }}</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
-        {% else %}
-        <div class="alert alert-warning text-center">No content exist</div>
-        {% endif %}
-    </div>
-{% endblock %}
+        <div class="total_values" style="margin-top: 20px">
+            <div class="price">
+                <p>Total Price: <span style="color: red">{{ quote.get_total_price }}$</span></p>
+            </div>
+            <div class="count">
+                <p>Total Quantity of quote: {{ quote.get_total_count }}</p>
+            </div>
+        </div>
+    </body>
+</html>

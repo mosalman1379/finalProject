@@ -6,7 +6,7 @@
 {% endblock %}
 {% block body %}
     <div class="container">
-    <h2>Details of {{ report }}</h2>
+    <h2 class="text-center display-3 text-info">Detail</h2>
     <div class="row mt-2">
         <div class="col-6">
             <label>User
@@ -19,6 +19,14 @@
             </label>
         </div>
     </div>
-    <div class="mt-4"><p id="Report">{{ report.report }}</p></div>
+    <div class="mt-4" style="padding: 25px">
+        Report Context:
+        <pre style="border: 2px solid orangered">
+            {{ report.report }}
+        </pre>
+    </div>
+    <div class="row">
+        <a class="btn btn-info" href="{% url 'organization:list' %}">Back</a>
+    </div>
     </div>
 {% endblock %}

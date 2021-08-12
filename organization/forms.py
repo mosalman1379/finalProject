@@ -1,6 +1,7 @@
 from django import forms
 from organization.models import Organization
 
+
 # edit organization form
 class OrganizationForm(forms.ModelForm):
     class Meta:

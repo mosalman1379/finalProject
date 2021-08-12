@@ -16,10 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_view
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='Organization API')
+
 urlpatterns = [
-        path('admin/', admin.site.urls),
-        path('organization/', include('organization.urls')),
-        path('products/', include('products.urls')),
-        path('', auth_view.LoginView.as_view(), name='login'),
-        path('sale/',include('sale.urls'))
+    path('admin/', admin.site.urls),
+    path('organization/', include('organization.urls')),
+    path('products/', include('products.urls')),
+    path('', auth_view.LoginView.as_view(), name='login'),
+    path('sale/', include('sale.urls')),
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/jwtauth/', include('jwtauth.urls'), name='jwt authentication'),
+    path('api/docs/', schema_view)
 ]

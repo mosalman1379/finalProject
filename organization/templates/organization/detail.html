@@ -29,7 +29,8 @@
             </div>
             <div class="col-4">
                 <label for="registrar">Registrar: </label>
-                <input type="text" id="registrar" disabled value="{{ object.registrant_user }}">
+                <input type="text" id="registrar" data-pk="{{ pk }}"
+                       disabled value="{{ object.registrant_user }}">
             </div>
         </div>
         <div class="row mt-4">
@@ -39,7 +40,11 @@
         </div>
         <div class="row mt-4">
             <label>Recommended Products:
-                <input type="text" disabled value="{{ recommended|join:', ' }}">
+                {% if recommended %}
+                    <input type="text" disabled value="{{ recommended|join:', ' }}">
+                {% else %}
+                    <input type="text" disabled value="No suggestion">
+                {% endif %}
             </label>
         </div>
         <div class="row mt-4">
@@ -54,10 +59,12 @@
                 </label>
             </div>
         </div>
+        <hr>
         <div class="row-mt-4">
-            <h3 class="display-4" style="text-align: right">Report history</h3>
+            <div class="invisible alert" id="status"></div>
+            <h3 class="display-4" style="text-align: center">Report History</h3>
             {% if reports %}
-                <table>
+                <table class="table table-stripped">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -72,46 +79,54 @@
                             <td>{{ forloop.counter }}</td>
                             <td id="user" data-pk="{{ report.pk }}">{{ report.user.username }}</td>
                             <td>{{ report.date }}</td>
-                            <td><a href="{% url 'sale:report detail' report.pk %}"></a></td>
+                            <td><a class="btn btn-primary" href="{% url 'sale:report_detail' report.pk %}">Detail</a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             {% else %}
-                <h2>No Report exist</h2>
+                <h2 class="text-center">No Report exist</h2>
             {% endif %}
         </div>
         <div class="row mt-2">
-            <label>Report
-                <textarea id="work-report" name="report" cols="20" rows="15" placeholder="report"></textarea>
-            </label>
-            <button class="btn btn-primary" id="save-btn">Save</button>
+            <textarea id="work-report" name="report" cols="15" rows="10" placeholder="report"></textarea>
+            <button class="btn btn-primary mt-2" id="save-btn">Save</button>
         </div>
     </div>
 {% endblock %}
 {% block script %}
     <script>
-    $(document).ready(
-      $('#save-btn').click(function () {
-        const report=$('work-report').val();
-        const date=new Date();
-        const user_pk=$('#user').dataset.pk;
-        $.ajax({
-            url: '{% url "sale:save report" %}',
-            data:{
-                report:report,
-                date: date,
-                user_pk: user_pk
-            },
-            method: 'POST',
-            success: function (response) {
-                alert(response.message);
-            },
-            error: function (response){
-                alert(response.message)
-            }
-        })
-      })
-    );
+        $(document).ready(
+            $('#save-btn').click(function () {
+                const report = $('#work-report').val();
+                debugger;
+                const date = new Date();
+                const user_pk = $('#registrar')[0].dataset.pk;
+                let cookie = document.cookie
+                const csrf = cookie.substring(cookie.indexOf('=') + 1)
+                $.ajax({
+                    url: '{% url "sale:save report" %}',
+                    data: {
+                        report: report,
+                        date: date,
+                        user_pk: user_pk
+                    },
+                    headers: {
+                    'X-CSRFToken': csrf
+                    },
+                    method: 'POST',
+                    success: function (response) {
+                        const context='<span class="closebtn">&times;</span>'+
+                            '<strong>Success!</strong> '+response.message;
+                        $('#status').removeClass('invisible').addClass('success').append(context);
+                    },
+                    error: function (response) {
+                        const context='<span class="closebtn">&times;</span>'+
+                            '<strong>Error!</strong> '+response.message;
+                        $('#status').removeClass('invisible').append(context);
+                    }
+                })
+            })
+        );
     </script>
 {% endblock %}

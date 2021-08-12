@@ -16,3 +16,4 @@ class ReportForm(forms.ModelForm):
     class Meta:
         model=FollowUp
         fields=('user','report')
+

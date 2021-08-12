@@ -2,100 +2,123 @@
 {% load widget_tweaks %}
 {% block title %}Create Quote{% endblock %}
 {% block body %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="container">
-            <h3 class="display-4 bg-warning text-center">Create new Quote</h3>
-            <input type="hidden" data-organ="" name="row">
-            <div class="row mt-4 col-6">
-                <label for="id_organ">Organization name:</label>
-                <select name="organ" id="id_organ">
-                    {% for organization in organizations %}
-                        <option value="{{ organization.0 }}">{{ organization.2 }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="row mt-4">
-                <p class="text-center display-3">Required devices</p>
-            </div>
-            <div class="row mt-4">
-                <table class="table table-dark bg-dark">
-                    <thead>
-                    <tr>
-                        <th>Discount</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Device</th>
-                    </tr>
-                    </thead>
-                    <tbody >
-                    <tr id="row">
-                        <td>{{ form.discount|attr:'placeholder:discount'|attr:'disabled' }}</td>
-                        <td>{{ form.price|attr:'placeholder:price'|attr:'disabled' }}</td>
-                        <td>{{ form.quantity|attr:'placeholder:quantity'|attr:'disabled' }}</td>
-                        <td>
-                            <label>Devices
-                                <select name="device" class="Device">
-                                    {% for product in products %}
-                                        <option value="{{ product.0 }}" class="Option"
-                                                data-price="{{ product.2 }}">{{ product.1 }}</option>
-                                    {% endfor %}
-                                </select>
-                            </label>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <button id='save' class="btn btn-primary text-center" type="submit">Save</button>
-            </div>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-danger mt-2 text-center">{{ message }}</div>
+    <div class="container">
+        <h3 class="display-4 bg-warning text-center">Create new Quote</h3>
+        <div class="row mt-4 col-6">
+            <label for="id_organ">Organization name:</label>
+            <select name="organ" id="id_organ">{% for organization in organizations %}
+                <option value="{{ organization.0 }}">{{ organization.2 }}</option>
             {% endfor %}
-        {% endif %}
+            </select>
         </div>
-    </form>
-
+        <div class="row mt-4">
+            <p class="text-center display-3">Required devices</p>
+        </div>
+        <div class="row mt-4">
+            <table class="table table-dark bg-dark">
+                <thead>
+                <tr>
+                    <th>Discount</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Device</th>
+                </tr>
+                </thead>
+                <tbody id="table_body">
+                <tr>
+                    <td>{{ form.discount|attr:'placeholder:discount'|attr:'disabled' }}</td>
+                    <td>{{ form.price|attr:'placeholder:price'|attr:'disabled' }}</td>
+                    <td>{{ form.quantity|attr:'placeholder:quantity'|attr:'disabled' }}</td>
+                    <td>
+                        <label>Devices
+                            <select name="device" class="Device" data-pk="1">
+                                {% for product in products %}
+                                    <option onclick="show(this)" value="{{ product.0 }}"
+                                            data-price="{{ product.2 }}">{{ product.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="alert alert-success invisible" id="success"></div>
+        </div>
+        <div class="row mt-4">
+            <a class="col-4 btn btn-secondary" href="{% url 'sale:list' %}">🔙 Back</a>
+            <button class="btn btn-success col-4" id="save">Save 💾</button>
+            <button id='add' onclick="Add()" class="btn btn-primary text-center col-4">Add ➕</button>
+        </div>
+    </div>
 {% endblock %}
 {% block script %}
     <script>
-        $(document).ready(function () {
-            $('.Option').on('click', function () {
-                const price = $(this)[0].dataset.price;
-                const specific_row = $(this).parent().parent().parent().parent();
-                specific_row[0].children[0].children[0].removeAttribute('disabled');
-                specific_row[0].children[0].children[0].value = 0;
-                specific_row[0].children[1].children[0].removeAttribute('disabled');
-                specific_row[0].children[1].children[0].value = price;
-                specific_row[0].children[2].children[0].removeAttribute('disabled');
-                specific_row[0].children[2].children[0].value = 1;
-            });
-        });
         $('#save').click(function () {
-            const specific_row=$('#row');
-            const discount=$(specific_row)[0].children[0].children[0].value;
-            const price=$(specific_row)[0].children[1].children[0].value;
-            const quantity=$(specific_row)[0].children[2].children[0].value;
-            const productPk=$('.Device option:selected')[0].value;
-            const organPk=$('#id_organ option:selected')[0].value;
-
+            {# set whole items in array #}
+            let contents = []
+            const all_quotes = $('#table_body').children();
+            const organizationId = $('#id_organ').find(':selected')[0].value;
+            for (let i = 0; i < all_quotes.length; i++) {
+                if (!all_quotes[i].children[0].hasAttribute('disabled')) {
+                    const discount = all_quotes[i].children[0].children[0].value;
+                    const price = all_quotes[i].children[1].children[0].value;
+                    const quantity = all_quotes[i].children[2].children[0].value;
+                    const deviceId = all_quotes[i].children[3].children[0].children[0].dataset.pk;
+                    contents.push({
+                        'discount': discount, 'price': price, 'quantity': quantity,
+                        'deviceId': deviceId, 'organizationId': organizationId
+                    })
+                }
+            }
+            let cookie = document.cookie
+            const csrf = cookie.substring(cookie.indexOf('=') + 1)
+            const dataString = JSON.stringify(contents)
             $.ajax({
                 url: '{% url "sale:create" %}',
-                data:{
-                    discount: discount,
-                    price: price,
-                    quantity: quantity,
-                    productPk: productPk,
-                    organPk: organPk
+                data: {contents: dataString},
+                headers: {
+                    'X-CSRFToken': csrf
                 },
-                method:'POST',
-                success:function (){
-
-                },
-                error:function (){
-
+                method: 'POST',
+                success: function (response) {
+                    $('#success').removeClass('invisible').css('text-align','center').html(response.message);
                 }
-            });
+            })
         });
+
+        function show(event) {
+            const price=event.dataset.price;
+            const specific_row = $(event).parent().parent().parent().parent();
+            specific_row[0].children[0].children[0].removeAttribute('disabled');
+            specific_row[0].children[0].children[0].value = 0;
+            specific_row[0].children[1].children[0].removeAttribute('disabled');
+            specific_row[0].children[1].children[0].value = price;
+            specific_row[0].children[2].children[0].removeAttribute('disabled');
+            specific_row[0].children[2].children[0].value = 1;
+            $(event).parent()[0].dataset.pk = $(event)[0].value;
+        }
+
+        let options = $('.Device').children();
+        let StringOptions = '';
+        for (let i = 0; i < options.length; i++) {
+            StringOptions += options[i].outerHTML;
+        }
+
+        function Add() {
+            const content = '<tr>' +
+                '<td><input type="number" name="discount" step="any" disabled placeholder="discount" required id="id_discount"></td>' +
+                '<td><input type="number" name="price" disabled placeholder="price" required id="id_price"></td>' +
+                '<td><input type="number" name="quantity" disabled placeholder="quantity" required id="id_quantity"></td>' +
+                '<td>' +
+                '<label>Devices' +
+                '<select name="device" class="Device">' +
+                StringOptions +
+                '</select></label>' +
+                '</td>' +
+                '</tr>';
+            $('#table_body').append(content);
+        }
     </script>
 {% endblock %}

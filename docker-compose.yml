@@ -24,3 +24,7 @@ services:
     ports:
       - 1025:1025
       - 8025:8025
+  cache:
+    image: 'memcached:alpine'
+    ports:
+      - 11221:11211

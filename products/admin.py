@@ -1,7 +1,7 @@
 import logging
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
-
+from taggit.models import Tag
 from products.forms import ProductForm
 from products.models import Product, Manufacture_Product
 
@@ -18,7 +18,13 @@ class Product(admin.ModelAdmin):
     list_per_page = 3
     list_display = ('name','price','taxable','download_link')
 
+
 @admin.register(Manufacture_Product)
 class ManufactureAdmin(admin.ModelAdmin):
     list_display = ('name',)
-    change_form_template = 'admin/manufacture_add.html'
+    add_form_template = 'admin/manufacture_add.html'
+
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context=extra_context or {}
+        extra_context['tags']=Tag.objects.all().values_list()
+        return super(ManufactureAdmin, self).add_view(request, form_url, extra_context)

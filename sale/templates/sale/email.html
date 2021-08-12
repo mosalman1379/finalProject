@@ -1,18 +1,15 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Email Content</title>
-    <style>
-        table,th,td{
-            border-collapse: collapse;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/pdf.css' %}">
 </head>
 <body>
 <h2 style="color: red; margin: auto">Your quote contains these items</h2>
 {% if quotes %}
-    <table>
+    <table class="table">
     <thead>
         <tr>
             <th>device</th>
@@ -31,7 +28,7 @@
         {% endfor %}
     </table>
 {% else %}
-    <p style="margin: 20px">No content exist</p>
+    <p id="not">No content exist</p>
 {% endif %}
 </body>
 </html>

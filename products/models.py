@@ -4,6 +4,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
+from taggit.managers import TaggableManager
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ tax_rate=1.09
 # manufacture model
 class Manufacture_Product(models.Model):
     name = models.CharField(max_length=40, verbose_name=_('product name'))
+    tags=TaggableManager()
 
     def __str__(self):
         return self.name

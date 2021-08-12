@@ -9,11 +9,11 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 import environ
 
-env=environ.Env()
+env = environ.Env()
 environ.Env().read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,7 +42,11 @@ INSTALLED_APPS = [
     'organization.apps.OrganizationConfig',
     'products.apps.ProductsConfig',
     'sale.apps.SaleConfig',
-    'widget_tweaks'
+    'widget_tweaks',
+    'taggit',
+    'rest_framework',
+    'jwtauth.apps.JwtauthConfig',
+    'rest_framework_swagger'
 ]
 
 LOGIN_URL = 'login'
@@ -91,7 +95,36 @@ DATABASES = {
         'PORT': '5430'
     }
 }
-
+# Log configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR,'finalProject/Log.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+# Rest framework configuration
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+    "DEFAULT_PARSER_CLASSES": ['rest_framework.parsers.JSONParser', ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema"
+}
+# celery broker url
 CELERY_BROKER_URL = 'amqp://localhost'
 
 # Password validation
@@ -135,6 +168,16 @@ FILE_UPLOAD_HANDLERS = [
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = BASE_DIR
+
+# cache configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11221',
+    }
+}
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
@@ -142,16 +185,20 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+"""
+Email backend configuration
+"""
 
-EMAIL_HOST=env('EMAIL_HOST')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_USE_TLS=True
+EMAIL_HOST = env('EMAIL_HOST')
 
-EMAIL_PORT=587
+EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER=env('EMAIL_HOST_USER')
+EMAIL_PORT = 587
 
-EMAIL_HOST_PASSWORD=env('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 
-DEFAULT_FROM_EMAIL='default from email'
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+DEFAULT_FROM_EMAIL = 'default from email'
